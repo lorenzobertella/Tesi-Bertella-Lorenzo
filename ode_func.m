@@ -18,4 +18,7 @@ dx4_dt = z(2,:);
 
 %uscita della ode_func:
 dx_dt = [dx1_dt; dx2_dt; dx3_dt; dx4_dt];
+
+%questa non serve più perchè ho cambiato 
+%metodo di integrazione
 end
