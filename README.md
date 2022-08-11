@@ -1,0 +1,1 @@
+manipolatore_planare
