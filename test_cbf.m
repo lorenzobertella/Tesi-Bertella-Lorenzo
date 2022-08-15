@@ -48,6 +48,10 @@ grid on
 title('Barriera')
 xlabel('q1')
 ylabel('q2')
+hold on
+plot(q(1),q(2),'r.')
+plot(qB(1),qB(2),'b.')
+legend('Barriera','q','qB','Location','northwest')
 
 
 % Variabili utili per i cicli:
