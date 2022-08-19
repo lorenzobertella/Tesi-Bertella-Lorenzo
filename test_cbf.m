@@ -19,7 +19,7 @@ kp = 20;                                    %parte proporzionale
 kd = 2*sqrt(kp);                            %parte derivativa
 
 % Posizione desiderata:
-qB = [0;1.5];
+qB = [1 ; 0];
 
 % Inizializzo errore:
 e = qB - q;                              %errore
@@ -75,25 +75,21 @@ while run_loop && i < nmax
         f = - 2 * computed_torque_control(dq,tau,B, C, g)';
         A = zeros(cl-1,2);
         b = zeros(cl-1,1);
+        
         alpha1 = 1;      %prova con 0.1, 1, 10
         alpha2 = 1;
         gamma1 = alpha2;
+        
         for ii = 1:cl-1
             mi = h(ii,1:2);
             bi = h(ii,3);
             A(ii,1:2) = - mi*invB;
             b(ii) = gamma1*(mi*dq) + alpha2*(mi*dq + alpha1*(mi*q + bi)) - mi*invB*n;
+            if x(c(ii+1)) > x(c(ii))
+                A(ii,1:2) = - A(ii,1:2);
+                b(ii) = - b(ii);
+            end
         end
-
-        %test delle singole barriere o accoppiate
-        %mi1 = h(3,1:2);
-        %bi1 = h(3,3);
-        %A(1,1:2) = - mi1*invB;
-        %b(1) = gamma1*(mi1*dq) + alpha2*(mi1*dq + alpha1*(mi1*q + bi1)) - mi1*invB*n;
-        %mi2 = h(4,1:2);
-        %bi2 = h(4,3);
-        %A(2,1:2) = - mi2*invB;
-        %b(2) = gamma1*(mi2*dq) + alpha2*(mi2*dq + alpha1*(mi2*q + bi2)) - mi2*invB*n;
 
         u = quadprog(H, f, A, b, ...
         [], [], [], [], [], optimoptions('quadprog','Display','off'));
