@@ -73,17 +73,17 @@ while run_loop && i < nmax
         invB = pinv(B);
         H = 2*eye(2);
         f = - 2 * computed_torque_control(dq,tau,B, C, g)';
-        %A = zeros(cl-1,2);
-        %b = zeros(cl-1,1);
+        A = zeros(cl-1,2);
+        b = zeros(cl-1,1);
         alpha1 = 1;      %prova con 0.1, 1, 10
         alpha2 = 1;
         gamma1 = alpha2;
-        %for ii = 1:cl-1
-            %mi = h(ii,1:2);
-            %bi = h(ii,3);
-            %A(ii,1:2) = - mi*invB;
-            %b(ii) = gamma1*(mi*dq) + alpha2*(mi*dq + alpha1*(mi*q + bi)) - mi*invB*n;
-        %end
+        for ii = 1:cl-1
+            mi = h(ii,1:2);
+            bi = h(ii,3);
+            A(ii,1:2) = - mi*invB;
+            b(ii) = gamma1*(mi*dq) + alpha2*(mi*dq + alpha1*(mi*q + bi)) - mi*invB*n;
+        end
 
         %test delle singole barriere o accoppiate
         %mi1 = h(3,1:2);
