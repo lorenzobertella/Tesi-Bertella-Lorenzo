@@ -85,16 +85,15 @@ while run_loop && i < nmax
             %b(ii) = gamma1*(mi*dq) + alpha2*(mi*dq + alpha1*(mi*q + bi)) - mi*invB*n;
         %end
 
-        %test delle singole barriere o accoppiate
-        %mi1 = h(3,1:2);
-        %bi1 = h(3,3);
-        %A(1,1:2) = - mi1*invB;
-        %b(1) = gamma1*(mi1*dq) + alpha2*(mi1*dq + alpha1*(mi1*q + bi1)) - mi1*invB*n;
+        %test 
+        mi1 = h(3,1:2);
+        bi1 = h(3,3);
+        A(1,1:2) = - mi1*invB;
+        b(1) = gamma1*(mi1*dq) + alpha2*(mi1*dq + alpha1*(mi1*q + bi1)) - mi1*invB*n;
         %mi2 = h(4,1:2);
         %bi2 = h(4,3);
         %A(2,1:2) = - mi2*invB;
         %b(2) = gamma1*(mi2*dq) + alpha2*(mi2*dq + alpha1*(mi2*q + bi2)) - mi2*invB*n;
-
         u = quadprog(H, f, A, b, ...
         [], [], [], [], [], optimoptions('quadprog','Display','off'));
 
