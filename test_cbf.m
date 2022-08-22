@@ -19,7 +19,7 @@ kp = 20;                                    %parte proporzionale
 kd = 2*sqrt(kp);                            %parte derivativa
 
 % Posizione desiderata:
-qB = [1 ; 0];
+qB = [1 ; 1];
 
 % Inizializzo errore:
 e = qB - q;                              %errore
