@@ -37,9 +37,6 @@ nmax = 1500;                               %numero max cicli
 npos = 10;                                 %numero posizionamenti
 c = zeros;                                 %output boundary
 
-% Inizializzo matrice di memorizzazione delle posizioni:
-Mm = zeros(npos,2);                        %matrice contenente q
-
 % Plot ostacolo (cerchio):
 r = 1;                                   %raggio
 c_o = [-1 2];                             %centro
