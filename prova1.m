@@ -20,10 +20,6 @@ q_f = [qA(1); qA(2)];
 dq_f  = [0; 0];
 ddq_f = [0; 0];
 
-% Inizializzo variabili di errore:
-e = zeros(2,1);                            %errore
-de = -dq;                                  %derivata dell'errore
-
 % Frequenza del controllo:
 dt = 0.01;                                 %controllo a 100 Hz
 
@@ -100,20 +96,87 @@ while run_loop && i < nmax
             z=1;
         end
     end
-
-     % Plot posizione end-effector robot simulato:
-    hold on
-    plot(x(c),y(c))
-    scatter(q(1),q(2),'.')
-    pause(0.002)
-    legend('q','location','northwest')
-
+    
     % Condizioni fine ciclo:
     if norm(e) < 0.01 && norm(de) < 0.001
         run_loop = 0;
     end
 end
-%         
+
+ % Costruzione bordi:
+            cl = length(c);
+            for nn1 = 1:cl-1
+        
+                p1 = c(nn1);                                                        %pedice punto 1
+                p2 = c(nn1+1);                                                      %pedice punto 2
+
+                h(nn1,1) = (y(p2) - y(p1))/(x(p2) - x(p1));                         %coeff angolare 1
+                h(nn1,2) = -1;                                                      %coeff angolare 2
+                h(nn1,3) = y(p1) - (y(p2) - y(p1))/(x(p2) - x(p1))*x(p1);           %intercetta asse y
+
+            end
+
+% Robot fisico:
+            e = qB - q_f;                                        
+            de = -dq_f;
+            run_loop = 1;                                       %condizione cicli
+            i = 0;                                              %indice cicli
+
+            while run_loop && i < nmax
+                i = i+1;
+
+                % Dinamica diretta
+                tau = kp.*e + kd.*de;                                            %ingresso di controllo
+                [B, C, g] = get_dynamics(q_f,dq_f,params);                           %vettore contenente [B,C,g]
+                n = C*dq_f + g;
+                torque_control = computed_torque_control(dq_f,tau,B, C, g);        %vettore coppia di controllo
+                
+                % Control Barrier Function
+                invB = pinv(B);
+                H = 2*eye(2);
+                f = - 2 * computed_torque_control(dq_f,tau,B, C, g)';
+                A = zeros(cl-1,2);
+                b = zeros(cl-1,1);
+        
+                alpha1 = 1;      %prova con 0.1, 1, 10
+                alpha2 = 1;
+                gamma1 = alpha2;
+        
+                for ii = 1:cl-1
+                    mi = h(ii,1:2);
+                    bi = h(ii,3);
+                    A(ii,1:2) = - mi*invB;
+                    b(ii) = gamma1*(mi*dq_f) + alpha2*(mi*dq_f + alpha1*(mi*q_f + bi)) - mi*invB*n;
+                    if x(c(ii+1)) > x(c(ii))
+                        A(ii,1:2) = - A(ii,1:2);
+                        b(ii) = - b(ii);
+                    end
+                end
+
+                u = quadprog(H, f, A, b, ...
+                [], [], [], [], [], optimoptions('quadprog','Display','off'));
+
+                % Step di integrazione:
+                ddq_f = pinv(B)*(u-n);
+                dq_f  = dq_f + ddq_f*dt;
+                q_f   = q_f + dq_f*dt;
+    
+                % Aggiornamento errore:
+                e = qB - q_f;
+                de = -dq_f;
+        
+                % Condizioni fine ciclo:
+                if norm(e) < 0.01 && norm(de) < 0.001
+                    run_loop = 0;
+                end
+            end
+
+ % Plot posizione end-effector robot simulato:
+    hold on
+    plot(x(c),y(c))
+    scatter(q(1),q(2),'.')
+    scatter(q_f(1),q_f(2),'*')
+    legend('q','location','northwest')
    
 
 
