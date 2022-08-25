@@ -105,7 +105,6 @@ for pos = 1:npos
     % Plot posizionamento robot simulato:
     hold on
     scatter(q(1),q(2),100,'.')
-    pause(1)
 
     % Memorizzo posizionamenti:
     Mm(pos,1:2) = q_o;
@@ -132,65 +131,65 @@ for pos = 1:npos
 
         end
 
-%         % Robot fisico:
-%         e = qB - q_f;                                        
-%         de = -dq_f;
-%         run_loop = 1;                                       %condizione cicli
-%         i = 0;                                              %indice cicli
-% 
-%         while run_loop && i < nmax
-%             i = i+1;
-% 
-%             % Dinamica diretta
-%             tau = kp.*e + kd.*de;                                            %ingresso di controllo
-%             [B, C, g] = get_dynamics(q_f,dq_f,params);                           %vettore contenente [B,C,g]
-%             n = C*dq_f + g;
-%             torque_control = computed_torque_control(dq_f,tau,B, C, g);        %vettore coppia di controllo
-%                 
-%             % Control Barrier Function
-%             invB = pinv(B);
-%             H = 2*eye(2);
-%             f = - 2 * computed_torque_control(dq_f,tau,B, C, g)';
-%             A = zeros(cl-1,2);
-%             b = zeros(cl-1,1);
-%             
-%             alpha1 = 1;      %prova con 0.1, 1, 10
-%             alpha2 = 1;
-%             gamma1 = alpha2;
-%         
-%             for ii = 1:cl-1
-%                 mi = h(ii,1:2);
-%                 bi = h(ii,3);
-%                 A(ii,1:2) = - mi*invB;
-%                 b(ii) = gamma1*(mi*dq_f) + alpha2*(mi*dq_f + alpha1*(mi*q_f + bi)) - mi*invB*n;
-%                 if x(c(ii+1)) > x(c(ii))
-%                     A(ii,1:2) = - A(ii,1:2);
-%                     b(ii) = - b(ii);
-%                 end
-%             end
-% 
-%             u = quadprog(H, f, A, b, ...
-%                 [], [], [], [], [], optimoptions('quadprog','Display','off'));
-% 
-%             % Step di integrazione:
-%             ddq_f = pinv(B)*(u-n);
-%             dq_f  = dq_f + ddq_f*dt;
-%             q_f   = q_f + dq_f*dt;
-%     
-%             % Aggiornamento errore:
-%             e = qB - q_f;
-%             de = -dq_f;
-%         
-%             % Condizioni fine ciclo:
-%             if norm(e) < 0.01 && norm(de) < 0.001
-%                 run_loop = 0;
-%             end
-%        end
+        % Robot fisico:
+        e = qB - q_f;                                        
+        de = -dq_f;
+        run_loop = 1;                                       %condizione cicli
+        i = 0;                                              %indice cicli
+
+        while run_loop && i < nmax
+            i = i+1;
+
+            % Dinamica diretta
+            tau = kp.*e + kd.*de;                                            %ingresso di controllo
+            [B, C, g] = get_dynamics(q_f,dq_f,params);                           %vettore contenente [B,C,g]
+            n = C*dq_f + g;
+            torque_control = computed_torque_control(dq_f,tau,B, C, g);        %vettore coppia di controllo
+                
+            % Control Barrier Function
+            invB = pinv(B);
+            H = 2*eye(2);
+            f = - 2 * computed_torque_control(dq_f,tau,B, C, g)';
+            A = zeros(cl-1,2);
+            b = zeros(cl-1,1);
+            
+            alpha1 = 1;      %prova con 0.1, 1, 10
+            alpha2 = 1;
+            gamma1 = alpha2;
+        
+            for ii = 1:cl-1
+                mi = h(ii,1:2);
+                bi = h(ii,3);
+                A(ii,1:2) = - mi*invB;
+                b(ii) = gamma1*(mi*dq_f) + alpha2*(mi*dq_f + alpha1*(mi*q_f + bi)) - mi*invB*n;
+                if x(c(ii+1)) > x(c(ii))
+                    A(ii,1:2) = - A(ii,1:2);
+                    b(ii) = - b(ii);
+                end
+            end
+
+            u = quadprog(H, f, A, b, ...
+                [], [], [], [], [], optimoptions('quadprog','Display','off'));
+
+            % Step di integrazione:
+            ddq_f = pinv(B)*(u-n);
+            dq_f  = dq_f + ddq_f*dt;
+            q_f   = q_f + dq_f*dt;
+    
+            % Aggiornamento errore:
+            e = qB - q_f;
+            de = -dq_f;
+        
+            % Condizioni fine ciclo:
+            if norm(e) < 0.01 && norm(de) < 0.001
+                run_loop = 0;
+            end
+       end
           hold on
-         plot(x(c),y(c))
+          plot(x(c),y(c))
           pause(1)
-%          scatter(q_f(1),q_f(2),'*')
-%          pause(1)
+          scatter(q_f(1),q_f(2),'*')
+          pause(1)
           hold off
 
     end

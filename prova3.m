@@ -32,6 +32,7 @@ nmax = 1500;                        %numero max cicli (robot)
 npos = 1000;                        %numero max posizionamenti
 c = zeros;                          %output boundary
 q_o = [qA(1); qA(2)];               %variabile che memorizza la posizione
+num_p = 0;                          %numero punti in più per allargare zona sicura
 
 % Definizione ostacolo (cerchio):
 r = 0.7;                            %raggio
@@ -100,7 +101,7 @@ for pos = 1:npos
         de = -dq;
 
         % Condizione sulla presenza dell'ostacolo:
-        dist = sqrt((q(1) - c_o(1))^2 + (q(2) - c_o(2))^2);
+        dist = dist2points(q,c_o);
         if dist > r && z == 0
             q_o = q;
         else
@@ -119,6 +120,21 @@ for pos = 1:npos
 %   pause(1)
     
     if z == 1
+        % Incremento punti per zona sicura:
+        a = 0.1;
+        Ip(1,1:2) = [q_o(1)+0.001, q_o(2) + a];
+        Ip(2,1:2) = [q_o(1) + a, q_o(2)+0.001];
+        Ip(3,1:2) = [q_o(1)+0.001, q_o(2) - a];
+        Ip(4,1:2) = [q_o(1) - a, q_o(2)+0.001];
+        for iii = 1:4
+            dist = dist2points(Ip(iii,:),c_o);
+            if dist > r
+                num_p = num_p+1;
+                Mm_p(num_p,1:2) = Ip(iii,:);
+            end
+        end
+
+        % Algoritmo aggiramento ostacolo:
         pB = punti(7,:)';               
         vett = [pB(1)-q_o(1); qB(2) - q_o(2)];
         vettn = [-vett(2); vett(1)];
@@ -134,6 +150,11 @@ for pos = 1:npos
 
     % Memorizzo posizionamenti:
     Mm(pos,1:2) = q_o;
+    if num_p ~= 0
+        for ind = pos+1:pos+num_p
+            Mm(ind,1:2) = Mm_p(ind-pos,:);
+        end
+    end
     x = Mm(:,1);
     y = Mm(:,2);
 
@@ -213,14 +234,15 @@ for pos = 1:npos
 %             end
 %        end
 %         hold on
-%         plot(x(c),y(c))
-% %        pause(1)
+% %         plot(x(c),y(c))
+% % %        pause(1)
 %         scatter(q_f(1),q_f(2),'*')
-% %        pause(1)
-%         hold off
-% 
-%     end
-% end
-hold on
-        plot(x(c),y(c))
-scatter(q_f(1),q_f(2),'*')
+% % %        pause(1)
+% %         hold off
+
+     end
+end
+ hold on
+ plot(x(c),y(c))
+% scatter(q_f(1),q_f(2),'*')
+% hold off
