@@ -178,14 +178,14 @@ for pos = 1:npos
             Mm(ind,1:2) = Mm_p(ind-pos,:);
         end
     end
-    x = Mm(:,1);
-    y = Mm(:,2);
+    x = [-2; -1; 0.544; 0.645; 0.762; 0.893; 1.049; 1.249; 2; 2.5; -2; -3];
+    y = [1;2.5; 3.545; 3.609; 3.659; 3.695; 3.703; 3.660; 3; 4.5;4;3];
 
     if pos>= 3
 
         % Creazione poligonale:
-        c = boundary(x,y,0.1);
-
+        c = [1,12,11,10,9,8,7,6,5,4,3,2,1];
+        
         % Definizione parametri barriere:
         cl = length(c);
         for nn1 = 1:cl-1
@@ -205,7 +205,7 @@ for pos = 1:npos
         if z==1
             qB = q_o;
         end
-        e = qB - q_f;
+        e = qB - q_f;                                        
         de = -dq_f;
         run_loop = 1;                                       %condizione cicli
         i = 0;                                              %indice cicli
@@ -272,3 +272,4 @@ end
 % plot(x(c),y(c))
 % scatter(q_f(1),q_f(2),'*')
 % hold off
+
